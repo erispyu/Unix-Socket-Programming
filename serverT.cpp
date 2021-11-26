@@ -121,7 +121,7 @@ void receive() {
     }
 
     memset(&queriedUsernames, 0, sizeof(queriedUsernames));
-    memcpy(&queriedUsernames, recv_buf, sizeof(queriedUsernames));
+    memcpy(&queriedUsernames, recv_buf, recvfromResult);
 
     src = queriedUsernames[0];
     dest = queriedUsernames[1];

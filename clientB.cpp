@@ -28,7 +28,7 @@ struct PathInfo {
 int main(int argc, char *argv[])
 {
     const string username = argv[1];
-    int sockfd, numbytes;
+    int sockfd;
     char buf[MAXDATASIZE];
     struct addrinfo hints, *servinfo, *p;
     int rv;
@@ -73,9 +73,9 @@ int main(int argc, char *argv[])
         perror("send");
     cout << "The client sent " << username << " to the Central server." << endl;
 
-    read(sockfd, buf, MAXDATASIZE);
+    int numbytes = read(sockfd, buf, MAXDATASIZE);
     PathInfo pathInfo;
-    memcpy(&pathInfo, buf, sizeof pathInfo);
+    memcpy(&pathInfo, buf, numbytes);
     close(sockfd);
 
     cout << "Found compatibility for " << pathInfo.src << " and " << pathInfo.dest << ":" << endl;

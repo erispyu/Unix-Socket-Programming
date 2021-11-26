@@ -113,7 +113,7 @@ void receive() {
     }
 
     memset(&userList, 0, sizeof(userList));
-    memcpy(&userList, recv_buf, sizeof(userList));
+    memcpy(&userList, recv_buf, recvfromResult);
 
     cout << "The ServerS received a request from Central to get the scores." << endl;
 }

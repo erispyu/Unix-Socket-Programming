@@ -169,7 +169,7 @@ void contactServerT() {
 //    graph.userList = vector<User>(MAX_USER_NUM);
 //    graph.distance = vector< vector<double> >(MAX_USER_NUM, vector<double>(MAX_USER_NUM));
     memset(&graph, 0, sizeof(graph));
-    memcpy(&graph, recv_buf, sizeof(graph));
+    memcpy(&graph, recv_buf, recvfromResult);
     cout << "The Central server received information from Backend-Server T using UDP over port " << UDP_PORT_T
          << "." << endl;
 }
@@ -201,7 +201,7 @@ void contactServerS() {
     }
 
     memset(&graph.userList, 0, sizeof(graph.userList));
-    memcpy(&graph.userList, recv_buf, sizeof(graph.userList));
+    memcpy(&graph.userList, recv_buf, recvfromResult);
     cout << "The Central server received information from Backend-Server S using UDP over port " << UDP_PORT_S
          << "." << endl;
 }
@@ -231,7 +231,7 @@ void contactServerP() {
         exit(1);
     }
 
-    memset(&pathInfo, 0, recvfromResult);
+    memset(&pathInfo, 0, sizeof pathInfo);
     memcpy(&pathInfo, recv_buf, recvfromResult);
     cout << "The Central server received information from Backend-Server P using UDP over port " << UDP_PORT_P
          << "." << endl;
@@ -375,9 +375,9 @@ int main() {
                         unsigned short portNumber = ntohs(((struct sockaddr_in *) &remoteaddr)->sin_port);
 
                         memset(&buf, 0, BUF_SIZE);
-                        read(newfd_A, buf, BUF_SIZE);
+                        int numbytes = read(newfd_A, buf, BUF_SIZE);
                         memset(&src, 0, sizeof(src));
-                        memcpy(&src, buf, sizeof(src));
+                        memcpy(&src, buf, numbytes);
                         cout << "The Central server received input=\"" << src << "\" from the client using TCP over port " << portNumber
                              << "." << endl;
                     }
@@ -393,9 +393,9 @@ int main() {
                         unsigned short portNumber = ntohs(((struct sockaddr_in *) &remoteaddr)->sin_port);
 
                         memset(&buf, 0, BUF_SIZE);
-                        read(newfd_B, buf, BUF_SIZE);
+                        int numbytes = read(newfd_B, buf, BUF_SIZE);
                         memset(&dest, 0, sizeof(dest));
-                        memcpy(&dest, buf, sizeof(dest));
+                        memcpy(&dest, buf, numbytes);
                         cout << "The Central server received input=\"" << dest << "\" from the client using TCP over port " << portNumber
                              << "." << endl;
                     }

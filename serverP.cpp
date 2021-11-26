@@ -116,7 +116,7 @@ void receive() {
     }
 
     memset(&graph, 0, sizeof(graph));
-    memcpy(&graph, recv_buf, sizeof(graph));
+    memcpy(&graph, recv_buf, recvfromResult);
     cout << "The ServerP received the topology and score information." << endl;
 }
 
