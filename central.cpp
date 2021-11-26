@@ -374,13 +374,15 @@ int main() {
                         add_to_pfds(&pfds, newfd_A, &fd_count, &fd_size);
                         unsigned short portNumber = ntohs(((struct sockaddr_in *) &remoteaddr)->sin_port);
 
-                        memset(&buf, 0, BUF_SIZE);
-                        int numbytes = read(newfd_A, buf, BUF_SIZE);
-//                        memset(&src, 0, sizeof(src));
-//                        memcpy(&src, buf, numbytes);
-                        buf[numbytes] = '\0';
-                        char *input = buf;
-                        cout << "The Central server received input=\"" << buf << "\" from the client using TCP over port " << portNumber
+                        int length = 0;
+                        read(newfd_A, &length, sizeof(int));
+                        char* message = (char*)malloc(length+1);
+                        memset(message, 0, length+1);
+                        read(newfd_A,message,length);
+                        src = message;
+                        free(message);
+
+                        cout << "The Central server received input=\"" << src << "\" from the client using TCP over port " << portNumber
                              << "." << endl;
                     }
                 }
