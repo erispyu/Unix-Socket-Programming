@@ -376,9 +376,11 @@ int main() {
 
                         memset(&buf, 0, BUF_SIZE);
                         int numbytes = read(newfd_A, buf, BUF_SIZE);
-                        memset(&src, 0, sizeof(src));
-                        memcpy(&src, buf, numbytes);
-                        cout << "The Central server received input=\"" << src << "\" from the client using TCP over port " << portNumber
+//                        memset(&src, 0, sizeof(src));
+//                        memcpy(&src, buf, numbytes);
+                        buf[numbytes] = '\0';
+                        char *input = buf;
+                        cout << "The Central server received input=\"" << buf << "\" from the client using TCP over port " << portNumber
                              << "." << endl;
                     }
                 }
@@ -394,8 +396,8 @@ int main() {
 
                         memset(&buf, 0, BUF_SIZE);
                         int numbytes = read(newfd_B, buf, BUF_SIZE);
-                        memset(&dest, 0, sizeof(dest));
-                        memcpy(&dest, buf, numbytes);
+//                        memset(&dest, 0, sizeof(dest));
+//                        memcpy(&dest, buf, numbytes);
                         cout << "The Central server received input=\"" << dest << "\" from the client using TCP over port " << portNumber
                              << "." << endl;
                     }
