@@ -1,0 +1,49 @@
+#ifndef UNIX_SOCKET_PROGRAMMING_CENTRAL_H
+#define UNIX_SOCKET_PROGRAMMING_CENTRAL_H
+
+#include <vector>
+#include <map>
+#include <string>
+#include <float.h>
+
+#define EDGE_LIST_FILENAME "/Users/chong.chen/myProjects/UNIX-Socket-Programming/edgelist.txt"
+#define SCORES_FILENAME "/Users/chong.chen/myProjects/UNIX-Socket-Programming/scores.txt"
+
+#define localhost "127.0.0.1"
+#define UDP_PORT_T "21900"
+#define UDP_PORT_P "22900"
+#define UDP_PORT_S "23900"
+#define UDP_PORT_C "24900"
+#define TCP_PORT_A "25900"
+#define TCP_PORT_B "26900"
+
+#define BUF_SIZE 1024
+#define FLAG 0
+
+#define MAX_USER_NUM 10
+
+struct User {
+    std::string username;
+    int id;
+    int score;
+    double distance;
+    int preId;
+};
+
+struct Graph {
+    std::string src;
+    std::string dest;
+    int destId;
+    int size;
+    User userList[MAX_USER_NUM];
+    double distance[MAX_USER_NUM][MAX_USER_NUM];
+};
+
+struct PathInfo {
+    std::string src;
+    std::string dest;
+    std::string pathStr;
+    double distance;
+};
+
+#endif //UNIX_SOCKET_PROGRAMMING_CENTRAL_H
