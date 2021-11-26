@@ -6,6 +6,8 @@
 #include <netdb.h>
 #include "backend.h"
 #include <unistd.h>
+#include <cstring>
+#include <cstdlib>
 
 using namespace std;
 
@@ -125,7 +127,9 @@ void parseFile() {
     while (!fileIn.eof()) {
         fileIn >> username;
         fileIn >> score;
-        scoreMap.insert(pair<string, int>(username, stoi(score)));
+        int socreInt;
+        sscanf(score.c_str(), "%d", &socreInt);
+        scoreMap.insert(pair<string, int>(username, socreInt));
     }
     fileIn.close();
 }

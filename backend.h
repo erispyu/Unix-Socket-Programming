@@ -6,8 +6,8 @@
 #include <string>
 #include <float.h>
 
-#define EDGE_LIST_FILENAME "/Users/chong.chen/myProjects/UNIX-Socket-Programming/edgelist.txt"
-#define SCORES_FILENAME "/Users/chong.chen/myProjects/UNIX-Socket-Programming/scores.txt"
+#define EDGE_LIST_FILENAME "./edgelist.txt"
+#define SCORES_FILENAME "./scores.txt"
 
 #define localhost "127.0.0.1"
 #define UDP_PORT_T "21900"
@@ -20,7 +20,7 @@
 #define BUF_SIZE 1024
 #define FLAG 0
 
-#define MAX_USER_NUM 10
+#define MAX_USER_NUM 20
 
 struct User {
     std::string username;

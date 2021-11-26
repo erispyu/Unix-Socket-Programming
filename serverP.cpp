@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
+#include <cstdlib>
+#include <stdio.h>
 
 using namespace std;
 

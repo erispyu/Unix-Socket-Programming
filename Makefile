@@ -1,7 +1,7 @@
 # the compiler: gcc for C program, define as g++ for C++
 CC = g++
 
-all: serverC.out serverS.out serverT.out serverP.out clientA.out clientB.out
+all: clean serverC.out serverS.out serverT.out serverP.out clientA.out clientB.out
 
 serverC: serverC.out
 	@ ./serverC

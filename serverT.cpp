@@ -7,6 +7,8 @@
 #include <map>
 #include <netdb.h>
 #include <unistd.h>
+#include <cstring>
+#include <cstdlib>
 
 using namespace std;
 
@@ -144,7 +146,7 @@ int getOriginalIndex(const string& username) {
 
 void parseEdgeList() {
     ifstream fileIn;
-    fileIn.open(string(EDGE_LIST_FILENAME));
+    fileIn.open(EDGE_LIST_FILENAME);
     string name1;
     string name2;
     while (!fileIn.eof()) {
@@ -162,7 +164,7 @@ map<string, User> userMap;
 set<string> accessibleNameSet;
 
 User* getUser(const string& username) {
-    User *u = nullptr;
+    User *u = NULL;
     map<string, User>::iterator it = userMap.find(username);
     if (it != userMap.end()) {
         u = &it->second;

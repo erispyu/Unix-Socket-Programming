@@ -15,7 +15,8 @@
 #include <iostream>
 #include "backend.h"
 #include <poll.h>
-
+#include <cstring>
+#include <cstdlib>
 
 #define BACKLOG 2     // how many pending TCP connections queue will hold
 
