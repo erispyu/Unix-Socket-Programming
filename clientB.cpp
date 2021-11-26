@@ -27,6 +27,7 @@ struct PathInfo {
 
 int main(int argc, char *argv[])
 {
+    const string username = argv[1];
     int sockfd;
     char buf[MAXDATASIZE];
     struct addrinfo hints, *servinfo, *p;
@@ -68,9 +69,10 @@ int main(int argc, char *argv[])
 
     cout << "The client is up and running." << endl;
 
-    if (send(sockfd, &argv[1], sizeof argv, 0) == -1)
-        perror("send");
-    cout << "The client sent " << argv[1] << " to the Central server." << endl;
+    int length = username.length();
+    send(sockfd, &length, sizeof(int), 0);
+    send(sockfd, username.c_str(), sizeof username.length(), 0);
+    cout << "The client sent " << username << " to the Central server." << endl;
 
     int numbytes = read(sockfd, buf, MAXDATASIZE);
     PathInfo pathInfo;
