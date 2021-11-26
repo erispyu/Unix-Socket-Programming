@@ -109,14 +109,12 @@ void receive() {
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    int recvfromResult = recvfrom(sockfd, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *)&their_addr, &addr_len);
-    if (recvfromResult == -1) {
-        perror("recvfrom error");
-        exit(1);
-    }
+    int recvlen = 0;
+    recvfrom(sockfd, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    recvfrom(sockfd, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
 
     memset(&graph, 0, sizeof(graph));
-    memcpy(&graph, recv_buf, recvfromResult);
+    memcpy(&graph, recv_buf, recvlen);
     cout << "The ServerP received the topology and score information." << endl;
 }
 
@@ -187,10 +185,9 @@ void generateShortestPath() {
 }
 
 void sendBack() {
-    if (sendto(sockfd, &pathInfo, sizeof(pathInfo), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen) == -1) {
-        perror("talker: sendto");
-        exit(1);
-    }
+    int length = sizeof(pathInfo);
+    sendto(sockfd, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd, &pathInfo, sizeof(pathInfo), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     cout << "The ServerP finished sending the results to the Central." << endl;
 }
 

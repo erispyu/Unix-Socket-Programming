@@ -148,28 +148,19 @@ void contactServerT() {
     sockaddr *server_T_addr = backend_serverinfo.at(0)->ai_addr;
     socklen_t server_T_addrlen = backend_serverinfo.at(0)->ai_addrlen;
 
-    int sendtoResult = sendto(sockfd_udp_central, &queriedUsernames, sizeof(queriedUsernames), FLAG, server_T_addr,
-                              server_T_addrlen);
-    if (sendtoResult == -1) {
-        perror("[ServerT]sendto error");
-        exit(1);
-    }
+    int length = sizeof(&queriedUsernames);
+    sendto(sockfd_udp_central, &length, sizeof(int), 0, server_T_addr, server_T_addrlen);
+    sendto(sockfd_udp_central, &queriedUsernames, sizeof(queriedUsernames), 0, server_T_addr, server_T_addrlen);
     cout << "The Central server sent a request to Backend-Server T." << endl;
 
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    int recvfromResult = recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr,
-                                  &addr_len);
-    if (recvfromResult == -1) {
-        perror("[ServerT]recvfrom error");
-        exit(1);
-    }
-
-//    graph.userList = vector<User>(MAX_USER_NUM);
-//    graph.distance = vector< vector<double> >(MAX_USER_NUM, vector<double>(MAX_USER_NUM));
+    int recvlen = 0;
+    recvfrom(sockfd_udp_central, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    recvfrom(sockfd_udp_central, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memset(&graph, 0, sizeof(graph));
-    memcpy(&graph, recv_buf, recvfromResult);
+    memcpy(&graph, recv_buf, recvlen);
     cout << "The Central server received information from Backend-Server T using UDP over port " << UDP_PORT_T
          << "." << endl;
 }
@@ -182,26 +173,20 @@ void contactServerS() {
     sockaddr *server_S_addr = backend_serverinfo.at(1)->ai_addr;
     socklen_t server_S_addrlen = backend_serverinfo.at(1)->ai_addrlen;
 
-    int sendtoResult = sendto(sockfd_udp_central, &graph.userList, sizeof(graph.userList), FLAG, server_S_addr,
-                              server_S_addrlen);
-    if (sendtoResult == -1) {
-        perror("[ServerS]sendto error");
-        exit(1);
-    }
+    int length = sizeof(graph.userList);
+    sendto(sockfd_udp_central, &length, sizeof(int), 0, server_S_addr, server_S_addrlen);
+    sendto(sockfd_udp_central, &graph.userList, sizeof(graph.userList), 0, server_S_addr, server_S_addrlen);
     cout << "The Central server sent a request to Backend-Server S." << endl;
 
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    int recvfromResult = recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr,
-                                  &addr_len);
-    if (recvfromResult == -1) {
-        perror("[ServerS]recvfrom error");
-        exit(1);
-    }
+    int recvlen = 0;
+    recvfrom(sockfd_udp_central, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    recvfrom(sockfd_udp_central, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
 
     memset(&graph.userList, 0, sizeof(graph.userList));
-    memcpy(&graph.userList, recv_buf, recvfromResult);
+    memcpy(&graph.userList, recv_buf, recvlen);
     cout << "The Central server received information from Backend-Server S using UDP over port " << UDP_PORT_S
          << "." << endl;
 }
@@ -214,25 +199,19 @@ void contactServerP() {
     sockaddr *server_P_addr = backend_serverinfo.at(2)->ai_addr;
     socklen_t server_P_addrlen = backend_serverinfo.at(2)->ai_addrlen;
 
-    int sendtoResult = sendto(sockfd_udp_central, &graph, sizeof(graph), FLAG, server_P_addr, server_P_addrlen);
-    if (sendtoResult == -1) {
-        perror("[ServerP]sendto error");
-        exit(1);
-    }
+    int length = sizeof(graph);
+    sendto(sockfd_udp_central, &length, sizeof(int), 0, server_P_addr, server_P_addrlen);
+    sendto(sockfd_udp_central, &graph, sizeof(graph), 0, server_P_addr, server_P_addrlen);
     cout << "The Central server sent a request to Backend-Server P." << endl;
 
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    int recvfromResult = recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr,
-                                  &addr_len);
-    if (recvfromResult == -1) {
-        perror("[ServerP]recvfrom error");
-        exit(1);
-    }
-
+    int recvlen = 0;
+    recvfrom(sockfd_udp_central, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    recvfrom(sockfd_udp_central, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memset(&pathInfo, 0, sizeof pathInfo);
-    memcpy(&pathInfo, recv_buf, recvfromResult);
+    memcpy(&pathInfo, recv_buf, recvlen);
     cout << "The Central server received information from Backend-Server P using UDP over port " << UDP_PORT_P
          << "." << endl;
 }
@@ -318,8 +297,9 @@ void del_from_pfds(struct pollfd pfds[], int i, int *fd_count)
 }
 
 void replyClient(int sockfd, int newfd, char client) {
-    if (send(newfd, &pathInfo, sizeof pathInfo, 0) == -1)
-        perror("send");
+    int length = sizeof(pathInfo);
+    send(newfd, &length, sizeof(int), 0);
+    send(newfd, &pathInfo, sizeof pathInfo, 0);
     close(newfd);
     cout << "The Central server sent the results to client " << client << "." << endl;
 }
@@ -396,10 +376,13 @@ int main() {
                         add_to_pfds(&pfds, newfd_B, &fd_count, &fd_size);
                         unsigned short portNumber = ntohs(((struct sockaddr_in *) &remoteaddr)->sin_port);
 
-                        memset(&buf, 0, BUF_SIZE);
-                        int numbytes = read(newfd_B, buf, BUF_SIZE);
-//                        memset(&dest, 0, sizeof(dest));
-//                        memcpy(&dest, buf, numbytes);
+                        int length = 0;
+                        read(newfd_A, &length, sizeof(int));
+                        char* message = (char*)malloc(length+1);
+                        memset(message, 0, length+1);
+                        read(newfd_A,message,length);
+                        dest = message;
+                        free(message);;
                         cout << "The Central server received input=\"" << dest << "\" from the client using TCP over port " << portNumber
                              << "." << endl;
                     }

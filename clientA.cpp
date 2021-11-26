@@ -74,9 +74,10 @@ int main(int argc, char *argv[])
     send(sockfd, username.c_str(), sizeof username.length(), 0);
     cout << "The client sent " << username << " to the Central server." << endl;
 
-    int numbytes = read(sockfd, buf, MAXDATASIZE);
+    int recvlen = 0;
+    read(sockfd, &recvlen, sizeof(int));
     PathInfo pathInfo;
-    memcpy(&pathInfo, buf, numbytes);
+    read(sockfd,&pathInfo,recvlen);
     close(sockfd);
 
     cout << "Found compatibility for " << pathInfo.src << " and " << pathInfo.dest << ":" << endl;

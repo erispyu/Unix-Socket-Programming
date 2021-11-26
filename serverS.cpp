@@ -106,14 +106,12 @@ void receive() {
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    int recvfromResult = recvfrom(sockfd, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *)&their_addr, &addr_len);
-    if (recvfromResult == -1) {
-        perror("recvfrom error");
-        exit(1);
-    }
+    int recvlen = 0;
+    recvfrom(sockfd, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    recvfrom(sockfd, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
 
     memset(&userList, 0, sizeof(userList));
-    memcpy(&userList, recv_buf, recvfromResult);
+    memcpy(&userList, recv_buf, recvlen);
 
     cout << "The ServerS received a request from Central to get the scores." << endl;
 }
@@ -145,10 +143,9 @@ void setScores() {
 }
 
 void sendBack() {
-    if (sendto(sockfd, &userList, sizeof(userList), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen) == -1) {
-        perror("talker: sendto");
-        exit(1);
-    }
+    int length = sizeof(userList);
+    sendto(sockfd, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd, &userList, sizeof(userList), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     cout << "The ServerS finished sending the scores to Central." << endl;
 }
 
