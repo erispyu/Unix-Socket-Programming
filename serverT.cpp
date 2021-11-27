@@ -257,11 +257,16 @@ void sendBack() {
 
 int main() {
     bootUp();
+    parseEdgeList();
     while (true) {
         receive();
-        parseEdgeList();
         generateGraph();
         sendBack();
+
+        memset(&graph, 0 ,sizeof graph);
+        memset(&nameList, 0 ,sizeof nameList);
+        src = "";
+        dest = "";
     }
     return 0;
 }

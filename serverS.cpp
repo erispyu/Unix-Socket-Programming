@@ -174,6 +174,9 @@ int main() {
         parseFile();
         setScores();
         sendBack();
+        memset(&nameList, 0 ,sizeof nameList);
+        memset(&scoreList, 0 ,sizeof scoreList);
+        memset(&scoreMap, 0, sizeof scoreMap);
     }
     return 0;
 }
