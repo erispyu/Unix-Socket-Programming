@@ -179,9 +179,11 @@ void contactServerT() {
     // }
 
     memset(recv_buf, 0, BUF_SIZE);
+    int namelistlen;
+    recvfrom(sockfd_udp_central, &namelistlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
     recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    memset(&nameList, 0, sizeof(nameList));
-    memcpy(&nameList, recv_buf, sizeof(nameList));
+    memset(&nameList, 0, namelistlen);
+    memcpy(&nameList, recv_buf, namelistlen);
     for (int i = 0; i < graph.size; i++) {
         cout << nameList[i] << endl;
     }
