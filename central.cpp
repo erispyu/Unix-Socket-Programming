@@ -497,11 +497,12 @@ int main() {
         contactServerT();
         contactServerS();
         contactServerP();
-        src = "";
-        dest = "";
 
         replyClient(sockfd_A, newfd_A, 'A');
         replyClient(sockfd_B, newfd_B, 'B');
+
+        src = "";
+        dest = "";
 
     } // END for(;;)--and you thought it would never end!
 }
