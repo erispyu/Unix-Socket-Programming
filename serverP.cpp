@@ -215,6 +215,26 @@ void dijkstra() {
             }
         }
     }
+
+    if (IS_DEBUG) {
+        cout << "After Dijkstra:" << endl;
+        cout << "graph.size = " << graph.size << endl;
+        cout << "destId = " << graph.destId << endl;
+        cout << "Adj Matrix:" << endl;
+        for (int i = 0; i < graph.size; i++) {
+            for (int j = 0; j < graph.size; j++) {
+                double interDistance = graph.distance[i][j];
+                printf("%.2f\t", interDistance);
+            }
+            cout << endl;
+        }
+        cout << "UserList:" << endl;
+        for (int i = 0; i < graph.size; i++) {
+            User u = graph.userList[i];
+            cout << "id=" << u.id << ", pre=" << u.preId;
+            printf(", distance=%.2f\t", u.distance);
+        }
+    }
 }
 
 void generateShortestPath() {
