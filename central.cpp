@@ -178,14 +178,19 @@ void contactServerT() {
     //     cout << "id=" << u.id << ", pre=" << u.preId << ", score=" << u.score << ", distance=" << u.distance << endl;
     // }
 
-    memset(recv_buf, 0, BUF_SIZE);
-    int namelistlen;
-    recvfrom(sockfd_udp_central, &namelistlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    memset(&nameList, 0, namelistlen);
-    memcpy(&nameList, recv_buf, namelistlen);
-    for (int i = 0; i < graph.size; i++) {
-        cout << nameList[i] << endl;
+    int graphSize = graph.size;
+    for (int i = 0; i < graphSize; i++) {
+        // receive
+        string username;
+        int length = 0;
+        recvfrom(sockfd_udp_central, &length, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+        char* message = (char*)malloc(length+1);
+        memset(message, 0, length+1);
+        recvfrom(sockfd_udp_central, message, length, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+        username = message;
+        free(message);
+        // fill in
+        nameList[i] = username;
     }
     cout << "The Central server received information from Backend-Server T using UDP over port " << UDP_PORT_T
          << "." << endl;

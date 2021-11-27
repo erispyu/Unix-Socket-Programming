@@ -236,12 +236,18 @@ void generateGraph() {
 }
 
 void sendBack() {
+    int graphSize = graph.size;
     int graphlen = sizeof graph;
     sendto(sockfd_central, &graphlen, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     sendto(sockfd_central, &graph, sizeof(graph), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
-    int namelistlen = sizeof(nameList);
-    sendto(sockfd_central, &namelistlen, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
-    sendto(sockfd_central, &nameList, sizeof(nameList), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+
+    for (int i = 0; i < graphSize; i++) {
+        string username = nameList[i];
+        int length = username.length();
+        sendto(sockfd_central, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+        sendto(sockfd_central, username.c_str(), username.length(), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    }
+
     cout << "The ServerT finished sending the topology to Central." << endl;
 }
 
