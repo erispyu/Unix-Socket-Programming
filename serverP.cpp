@@ -16,6 +16,7 @@ using namespace std;
 Graph graph;
 
 int sockfd;
+int sockfd_central;
 char recv_buf[BUF_SIZE];
 struct addrinfo* central_serverinfo;
 
@@ -70,7 +71,6 @@ void bootUpCentralUDPListener() {
  * Reference: https://beej.us/guide/bgnet/examples/talker.c
  */
 void bootUpServerUDPTalker() {
-    int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
 
@@ -85,7 +85,7 @@ void bootUpServerUDPTalker() {
 
     // loop through all the results and make a socket
     for(p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
+        if ((sockfd_central = socket(p->ai_family, p->ai_socktype,
                              p->ai_protocol)) == -1) {
             perror("talker: socket");
             continue;
@@ -215,11 +215,11 @@ void generateShortestPath() {
 void sendBack() {
     // send path
     int pathlen = path.length();
-    sendto(sockfd, &pathlen, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
-    sendto(sockfd, path.c_str(), path.length(), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, &pathlen, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, path.c_str(), path.length(), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
 
     // send score
-    sendto(sockfd, &compatibilityScore, sizeof(double), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, &compatibilityScore, sizeof(double), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
 
     cout << "The ServerP finished sending the results to the Central." << endl;
 }

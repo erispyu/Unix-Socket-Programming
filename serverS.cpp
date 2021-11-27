@@ -17,6 +17,7 @@ int scoreList[MAX_USER_NUM];
 map<string, int> scoreMap;
 
 int sockfd;
+int sockfd_central;
 char recv_buf[BUF_SIZE];
 struct addrinfo* central_serverinfo;
 
@@ -66,7 +67,6 @@ void bootUpCentralUDPListener() {
  * Reference: https://beej.us/guide/bgnet/examples/talker.c
  */
 void bootUpServerUDPTalker() {
-    int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
 
@@ -81,7 +81,7 @@ void bootUpServerUDPTalker() {
 
     // loop through all the results and make a socket
     for(p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
+        if ((sockfd_central = socket(p->ai_family, p->ai_socktype,
                              p->ai_protocol)) == -1) {
             perror("talker: socket");
             continue;
@@ -156,8 +156,8 @@ void setScores() {
 
 void sendBack() {
     int length = sizeof scoreList;
-    sendto(sockfd, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
-    sendto(sockfd, &scoreList, length, 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, &scoreList, length, 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     cout << "The ServerS finished sending the scores to Central." << endl;
 }
 
