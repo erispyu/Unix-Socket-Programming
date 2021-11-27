@@ -172,6 +172,7 @@ User *getUser(const string &username) {
         User newUser;
         nameList[id] = username;
         newUser.id = id;
+        newUser.preId = -1;
         newUser.score = -1;
         newUser.distance = DBL_MAX;
         userMap.insert(pair<string, User>(username, newUser));

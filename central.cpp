@@ -163,6 +163,21 @@ void contactServerT() {
     recvfrom(sockfd_udp_central, &recv_buf, graphlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memcpy(&graph, recv_buf, sizeof(graph));
 
+    // cout << "graph.size = " << graph.size << endl;
+    // cout << "destId = " << graph.destId << endl;
+    // cout << "Adj Matrix:" << endl;
+    // for (int i = 0; i < graph.size; i++) {
+    //     for (int j = 0; j < graph.size; j++) {
+    //         cout << graph.distance[i][j] << "\t";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << "UserList:" << endl;
+    // for (int i = 0; i < graph.size; i++) {
+    //     User u = graph.userList[i];
+    //     cout << "id=" << u.id << ", pre=" << u.preId << ", score=" << u.score << ", distance=" << u.distance << endl;
+    // }
+
     memset(recv_buf, 0, BUF_SIZE);
     recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memset(&nameList, 0, sizeof(nameList));
