@@ -32,7 +32,8 @@ string dest = "";
 Graph graph;
 string nameList[MAX_USER_NUM];
 int scoreList[MAX_USER_NUM];
-PathInfo pathInfo;
+string path;
+double compatibilityScore;
 
 char recv_buf[BUF_SIZE];
 
@@ -185,8 +186,8 @@ void contactServerT() {
         string username;
         int length = 0;
         recvfrom(sockfd_udp_central, &length, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
-        char* message = (char*)malloc(length+1);
-        memset(message, 0, length+1);
+        char *message = (char *) malloc(length + 1);
+        memset(message, 0, length + 1);
         recvfrom(sockfd_udp_central, message, length, FLAG, (struct sockaddr *) &their_addr, &addr_len);
         username = message;
         free(message);
@@ -225,9 +226,9 @@ void contactServerS() {
     recvfrom(sockfd_udp_central, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memcpy(&scoreList, recv_buf, recvlen);
 
-    for (int i = 0; i < graphSize; i++) {
-        cout << nameList[i] << ", " << scoreList[i] << endl;
-    }
+//    for (int i = 0; i < graphSize; i++) {
+//        cout << nameList[i] << ", " << scoreList[i] << endl;
+//    }
     cout << "The Central server received information from Backend-Server S using UDP over port " << UDP_PORT_S
          << "." << endl;
 }
@@ -240,26 +241,51 @@ void contactServerP() {
     sockaddr *server_P_addr = backend_serverinfo.at(2)->ai_addr;
     socklen_t server_P_addrlen = backend_serverinfo.at(2)->ai_addrlen;
 
-    int length = sizeof(graph);
-    sendto(sockfd_udp_central, &length, sizeof(int), 0, server_P_addr, server_P_addrlen);
+    // send graph
+    int graphlen = sizeof graph;
+    sendto(sockfd_udp_central, &graphlen, sizeof(int), 0, server_P_addr, server_P_addrlen);
     sendto(sockfd_udp_central, &graph, sizeof(graph), 0, server_P_addr, server_P_addrlen);
+
+    // send scoreList
+    int length = sizeof scoreList;
+    sendto(sockfd_udp_central, &length, sizeof(int), 0, server_P_addr, server_P_addrlen);
+    sendto(sockfd_udp_central, &scoreList, length, 0, server_P_addr, server_P_addrlen);
+
+    // send nameList
+    int graphSize = graph.size;
+    for (int i = 0; i < graphSize; i++) {
+        string username = nameList[i];
+        int length = username.length();
+        sendto(sockfd_udp_central, &length, sizeof(int), 0, server_P_addr, server_P_addrlen);
+        sendto(sockfd_udp_central, username.c_str(), username.length(), 0, server_P_addr, server_P_addrlen);
+    }
+
     cout << "The Central server sent a request to Backend-Server P." << endl;
 
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    int recvlen = 0;
-    recvfrom(sockfd_udp_central, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    recvfrom(sockfd_udp_central, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    memset(&pathInfo, 0, sizeof pathInfo);
-    memcpy(&pathInfo, recv_buf, recvlen);
+
+    // receive path
+    int pathlen = 0;
+    recvfrom(sockfd_udp_central, &pathlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    char *message = (char *) malloc(pathlen + 1);
+    memset(message, 0, pathlen + 1);
+    recvfrom(sockfd_udp_central, &message, pathlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    path = message;
+    free(message);
+
+    // receive score
+    compatibilityScore = 0;
+    recvfrom(sockfd_udp_central, &compatibilityScore, sizeof(double), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+
     cout << "The Central server received information from Backend-Server P using UDP over port " << UDP_PORT_P
          << "." << endl;
 }
 
-int bootUpTcpListener(const char* PORT) {
+int bootUpTcpListener(const char *PORT) {
     int listener;     // Listening socket descriptor
-    int yes=1;        // For setsockopt() SO_REUSEADDR, below
+    int yes = 1;        // For setsockopt() SO_REUSEADDR, below
     int rv;
 
     struct addrinfo hints, *ai, *p;
@@ -274,7 +300,7 @@ int bootUpTcpListener(const char* PORT) {
         exit(1);
     }
 
-    for(p = ai; p != NULL; p = p->ai_next) {
+    for (p = ai; p != NULL; p = p->ai_next) {
         listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
         if (listener < 0) {
             continue;
@@ -310,8 +336,7 @@ int bootUpTcpListener(const char* PORT) {
  * Add a new file descriptor to the set
  * Reference: https://beej.us/guide/bgnet/examples/pollserver.c
  */
-void add_to_pfds(struct pollfd *pfds[], int newfd, int *fd_count, int *fd_size)
-{
+void add_to_pfds(struct pollfd *pfds[], int newfd, int *fd_count, int *fd_size) {
     // If we don't have room, add more space in the pfds array
     if (*fd_count == *fd_size) {
         *fd_size *= 2; // Double it
@@ -329,18 +354,32 @@ void add_to_pfds(struct pollfd *pfds[], int newfd, int *fd_count, int *fd_size)
  * Remove an index from the set
  * Reference: https://beej.us/guide/bgnet/examples/pollserver.c
  */
-void del_from_pfds(struct pollfd pfds[], int i, int *fd_count)
-{
+void del_from_pfds(struct pollfd pfds[], int i, int *fd_count) {
     // Copy the one from the end over this one
-    pfds[i] = pfds[*fd_count-1];
+    pfds[i] = pfds[*fd_count - 1];
 
     (*fd_count)--;
 }
 
 void replyClient(int sockfd, int newfd, char client) {
-    int length = sizeof(pathInfo);
-    send(newfd, &length, sizeof(int), 0);
-    send(newfd, &pathInfo, sizeof pathInfo, 0);
+    // send src
+    int srclen = src.length();
+    send(newfd, &srclen, sizeof(int), 0);
+    send(newfd, src.c_str(), src.length(), 0);
+
+    // send dest
+    int destlen = dest.length();
+    send(newfd, &destlen, sizeof(int), 0);
+    send(newfd, dest.c_str(), dest.length(), 0);
+
+    // send path
+    int pathlen = path.length();
+    send(newfd, &pathlen, sizeof(int), 0);
+    send(newfd, path.c_str(), path.length(), 0);
+
+    // send score
+    send(newfd, &compatibilityScore, sizeof(double), 0);
+
     close(newfd);
     cout << "The Central server sent the results to client " << client << "." << endl;
 }
@@ -373,7 +412,7 @@ int main() {
     /**
      * Reference: https://beej.us/guide/bgnet/examples/pollserver.c
      */
-    for(;;) {
+    for (;;) {
         int poll_count = poll(pfds, fd_count, -1);
 
         if (poll_count == -1) {
@@ -382,13 +421,13 @@ int main() {
         }
 
         // Run through the existing connections looking for data to read
-        for(int i = 0; i < fd_count; i++) {
+        for (int i = 0; i < fd_count; i++) {
             // Check if someone's ready to read
             if (pfds[i].revents & POLLIN) { // We got one!!
                 if (pfds[i].fd == sockfd_A) {
                     // If listener is ready to read, handle new connection
                     addrlen = sizeof remoteaddr;
-                    newfd_A = accept(sockfd_A, (struct sockaddr *)&remoteaddr, &addrlen);
+                    newfd_A = accept(sockfd_A, (struct sockaddr *) &remoteaddr, &addrlen);
                     if (newfd_A == -1) {
                         perror("accept");
                     } else {
@@ -397,20 +436,20 @@ int main() {
 
                         int length = 0;
                         read(newfd_A, &length, sizeof(int));
-                        char* message = (char*)malloc(length+1);
-                        memset(message, 0, length+1);
-                        read(newfd_A,message,length);
+                        char *message = (char *) malloc(length + 1);
+                        memset(message, 0, length + 1);
+                        read(newfd_A, message, length);
                         src = message;
                         free(message);
 
-                        cout << "The Central server received input=\"" << src << "\" from the client using TCP over port " << portNumber
+                        cout << "The Central server received input=\"" << src
+                             << "\" from the client using TCP over port " << portNumber
                              << "." << endl;
                     }
-                }
-                else if (pfds[i].fd == sockfd_B) {
+                } else if (pfds[i].fd == sockfd_B) {
                     // If listener is ready to read, handle new connection
                     addrlen = sizeof remoteaddr;
-                    newfd_B = accept(sockfd_B, (struct sockaddr *)&remoteaddr, &addrlen);
+                    newfd_B = accept(sockfd_B, (struct sockaddr *) &remoteaddr, &addrlen);
                     if (newfd_B == -1) {
                         perror("accept");
                     } else {
@@ -419,12 +458,13 @@ int main() {
 
                         int length = 0;
                         read(newfd_B, &length, sizeof(int));
-                        char* message = (char*)malloc(length+1);
-                        memset(message, 0, length+1);
-                        read(newfd_B,message,length);
+                        char *message = (char *) malloc(length + 1);
+                        memset(message, 0, length + 1);
+                        read(newfd_B, message, length);
                         dest = message;
                         free(message);;
-                        cout << "The Central server received input=\"" << dest << "\" from the client using TCP over port " << portNumber
+                        cout << "The Central server received input=\"" << dest
+                             << "\" from the client using TCP over port " << portNumber
                              << "." << endl;
                     }
                 }// END handle data from client

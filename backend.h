@@ -24,7 +24,6 @@
 
 struct User {
     int id;
-    int score;
     double distance;
     int preId;
 };
@@ -34,13 +33,6 @@ struct Graph {
     int size;
     User userList[MAX_USER_NUM];
     double distance[MAX_USER_NUM][MAX_USER_NUM];
-};
-
-struct PathInfo {
-    std::string src;
-    std::string dest;
-    std::string pathStr;
-    double distance;
 };
 
 #endif //UNIX_SOCKET_PROGRAMMING_CENTRAL_H

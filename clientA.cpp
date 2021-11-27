@@ -18,15 +18,7 @@
 
 using namespace std;
 
-struct PathInfo {
-    std::string src;
-    std::string dest;
-    std::string pathStr;
-    double distance;
-};
-
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     const string username = argv[1];
     int sockfd;
     char buf[MAXDATASIZE];
@@ -44,7 +36,7 @@ int main(int argc, char *argv[])
     }
 
     // loop through all the results and connect to the first we can
-    for(p = servinfo; p != NULL; p = p->ai_next) {
+    for (p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                              p->ai_protocol)) == -1) {
             perror("client: socket");
@@ -69,20 +61,50 @@ int main(int argc, char *argv[])
 
     cout << "The client is up and running." << endl;
 
-    int length = username.length();
-    send(sockfd, &length, sizeof(int), 0);
+    int name_len = username.length();
+    send(sockfd, &name_len, sizeof(int), 0);
     send(sockfd, username.c_str(), username.length(), 0);
     cout << "The client sent " << username << " to the Central server." << endl;
 
-    int recvlen = 0;
-    read(sockfd, &recvlen, sizeof(int));
-    PathInfo pathInfo;
-    read(sockfd,&pathInfo,recvlen);
+    // receive src
+    string src;
+    int srclen = 0;
+    read(sockfd, &srclen, sizeof(int));
+    char *src_msg = (char *) malloc(srclen + 1);
+    memset(src_msg, 0, srclen + 1);
+    read(sockfd, src_msg, srclen);
+    src = src_msg;
+    free(src_msg);
+
+    // receive dest
+    string dest;
+    int destlen = 0;
+    read(sockfd, &destlen, sizeof(int));
+    char *dest_msg = (char *) malloc(destlen + 1);
+    memset(dest_msg, 0, destlen + 1);
+    read(sockfd, dest_msg, destlen);
+    dest = dest_msg;
+    free(dest_msg);
+
+    // receive path
+    string path;
+    int path_len = 0;
+    read(sockfd, &path_len, sizeof(int));
+    char *path_msg = (char *) malloc(path_len + 1);
+    memset(path_msg, 0, path_len + 1);
+    read(sockfd, path_msg, path_len);
+    path = path_msg;
+    free(path_msg);
+
+    // receive score
+    double compatibilityScore;
+    read(sockfd, &compatibilityScore, sizeof(double));
+
     close(sockfd);
 
-    cout << "Found compatibility for " << pathInfo.src << " and " << pathInfo.dest << ":" << endl;
-    cout << pathInfo.pathStr << endl;
-    printf("Compatibility score: %.2f\n", pathInfo.distance);
+    cout << "Found compatibility for " << src << " and " << dest << ":" << endl;
+    cout << path << endl;
+    printf("Compatibility score: %.2f\n", compatibilityScore);
     return 0;
 }
 

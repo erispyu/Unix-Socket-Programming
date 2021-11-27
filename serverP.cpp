@@ -19,7 +19,10 @@ int sockfd;
 char recv_buf[BUF_SIZE];
 struct addrinfo* central_serverinfo;
 
-PathInfo pathInfo;
+string nameList[MAX_USER_NUM];
+int scoreList[MAX_USER_NUM];
+string path;
+double compatibilityScore;
 
 /**
  * Reference: https://beej.us/guide/bgnet/examples/listener.c
@@ -109,12 +112,37 @@ void receive() {
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
+
+    // receive graph
+    int graphlen = 0;
+    recvfrom(sockfd, &graphlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    memset(&graph, 0, graphlen);
+    recvfrom(sockfd, &recv_buf, graphlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    memcpy(&graph, recv_buf, sizeof(graph));
+
+    // receive scoreList
     int recvlen = 0;
     recvfrom(sockfd, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    memset(&scoreList, 0, recvlen);
     recvfrom(sockfd, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    memcpy(&scoreList, recv_buf, recvlen);
 
-    memset(&graph, 0, sizeof(graph));
-    memcpy(&graph, recv_buf, recvlen);
+    // receive nameList
+    int graphSize = graph.size;
+    for (int i = 0; i < graphSize; i++) {
+        // receive
+        string username;
+        int length = 0;
+        recvfrom(sockfd, &length, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+        char *message = (char *) malloc(length + 1);
+        memset(message, 0, length + 1);
+        recvfrom(sockfd, message, length, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+        username = message;
+        free(message);
+        // fill in
+        nameList[i] = username;
+    }
+
     cout << "The ServerP received the topology and score information." << endl;
 }
 
@@ -126,7 +154,7 @@ void setDistance() {
     int size = graph.size;
     for (int i = 0; i < size; i++) {
         for (int j = i + 1; j > i && j < size && (graph.distance[i][j] > 0); j++) {
-            double distance = getMatchingGap(graph.userList[i].score, graph.userList[j].score);
+            double distance = getMatchingGap(scoreList[i], scoreList[j]);
             graph.distance[i][j] = distance;
             graph.distance[j][i] = distance;
         }
@@ -167,27 +195,32 @@ void dijkstra() {
 }
 
 void generateShortestPath() {
+    string src= nameList[0];
+
     if (graph.destId >= graph.size){
         return;
     }
     User u = graph.userList[graph.destId];
-    string pathSrc;
-    while (u.username != graph.src) {
-        pathSrc = " --- " + u.username + pathSrc;
-        u = graph.userList[u.preId];
-    }
-    pathSrc = graph.src + pathSrc;
+    string username = nameList[u.id];
 
-    pathInfo.src = graph.src;
-    pathInfo.dest = graph.dest;
-    pathInfo.pathStr = pathSrc;
-    pathInfo.distance = graph.userList[graph.destId].distance;
+    while (username != src) {
+        path = " --- " + username + path;
+        u = graph.userList[u.preId];
+        username = nameList[u.id];
+    }
+    path = src + path;
+    compatibilityScore = graph.userList[graph.destId].distance;
 }
 
 void sendBack() {
-    int length = sizeof(pathInfo);
-    sendto(sockfd, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
-    sendto(sockfd, &pathInfo, sizeof(pathInfo), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    // send path
+    int pathlen = path.length();
+    sendto(sockfd, &pathlen, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd, path.c_str(), path.length(), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+
+    // send score
+    sendto(sockfd, &compatibilityScore, sizeof(double), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+
     cout << "The ServerP finished sending the results to the Central." << endl;
 }
 
