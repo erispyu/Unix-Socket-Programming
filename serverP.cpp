@@ -232,7 +232,7 @@ void dijkstra() {
         for (int i = 0; i < graph.size; i++) {
             User u = graph.userList[i];
             cout << "id=" << u.id << ", pre=" << u.preId;
-            printf(", distance=%.2f\t", u.distance);
+            printf(", distance=%.2f\n", u.distance);
         }
     }
 }
@@ -256,6 +256,11 @@ void generateShortestPath() {
 }
 
 void sendBack() {
+    if (IS_DEBUG) {
+        cout << path << endl;
+        printf("score=%.2f\n", compatibilityScore);
+    }
+
     // send path
     int pathlen = path.length();
     sendto(sockfd_central, &pathlen, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
