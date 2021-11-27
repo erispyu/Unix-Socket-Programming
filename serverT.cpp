@@ -235,6 +235,9 @@ void generateGraph() {
 }
 
 void sendBack() {
+    int graphlen = sizeof graph;
+    sendto(sockfd_central, &graphlen, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, &graph, sizeof(graph), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     sendto(sockfd_central, &graph, sizeof(graph), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     sendto(sockfd_central, &nameList, sizeof(nameList), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     cout << "The ServerT finished sending the topology to Central." << endl;

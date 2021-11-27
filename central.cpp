@@ -156,8 +156,11 @@ void contactServerT() {
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    memset(&graph, 0, sizeof(graph));
+
+    int graphlen = 0;
+    recvfrom(sockfd_udp_central, &graphlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    memset(&graph, 0, graphlen);
+    recvfrom(sockfd_udp_central, &recv_buf, graphlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memcpy(&graph, recv_buf, sizeof(graph));
     cout << "graph.size=" << graph.size << endl;
 
