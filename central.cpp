@@ -30,7 +30,7 @@ int newfd_B;
 string src = "";
 string dest = "";
 Graph graph;
-PathInfo pathInfo;
+string nameList[MAX_USER_NUM];
 
 char recv_buf[BUF_SIZE];
 
@@ -141,16 +141,15 @@ void bootUpUDP() {
  * contact server T via Graph structure
  */
 void contactServerT() {
-    string queriedUsernames[2];
-    queriedUsernames[0] = src;
-    queriedUsernames[1] = dest;
-
     sockaddr *server_T_addr = backend_serverinfo.at(0)->ai_addr;
     socklen_t server_T_addrlen = backend_serverinfo.at(0)->ai_addrlen;
 
-    int length = sizeof(&queriedUsernames);
-    sendto(sockfd_udp_central, &length, sizeof(int), 0, server_T_addr, server_T_addrlen);
-    sendto(sockfd_udp_central, &queriedUsernames, sizeof(queriedUsernames), 0, server_T_addr, server_T_addrlen);
+    int srclen = src.length();
+    sendto(sockfd_udp_central, &srclen, sizeof(int), 0, server_T_addr, server_T_addrlen);
+    sendto(sockfd_udp_central, src.c_str(), src.length(), 0, server_T_addr, server_T_addrlen);
+    int destlen = dest.length();
+    sendto(sockfd_udp_central, &destlen, sizeof(int), 0, server_T_addr, server_T_addrlen);
+    sendto(sockfd_udp_central, dest.c_str(), dest.length(), 0, server_T_addr, server_T_addrlen);
     cout << "The Central server sent a request to Backend-Server T." << endl;
 
     memset(recv_buf, 0, BUF_SIZE);

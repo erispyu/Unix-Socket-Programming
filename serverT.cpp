@@ -22,8 +22,9 @@ int allEdges[MAX_USER_NUM][MAX_USER_NUM];
 Graph graph;
 
 int sockfd;
+int sockfd_central;
 char recv_buf[BUF_SIZE];
-struct addrinfo* central_serverinfo;
+struct addrinfo *central_serverinfo;
 
 /**
  * Reference: https://beej.us/guide/bgnet/examples/listener.c
@@ -43,9 +44,9 @@ void bootUpCentralUDPListener() {
     }
 
     // loop through all the results and bind to the first we can
-    for(p = servinfo; p != NULL; p = p->ai_next) {
+    for (p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
-                                         p->ai_protocol)) == -1) {
+                             p->ai_protocol)) == -1) {
             perror("Server T UDP listener: socket");
             continue;
         }
@@ -71,7 +72,6 @@ void bootUpCentralUDPListener() {
  * Reference: https://beej.us/guide/bgnet/examples/talker.c
  */
 void bootUpServerUDPTalker() {
-    int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
 
@@ -85,9 +85,9 @@ void bootUpServerUDPTalker() {
     }
 
     // loop through all the results and make a socket
-    for(p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
-                             p->ai_protocol)) == -1) {
+    for (p = servinfo; p != NULL; p = p->ai_next) {
+        if ((sockfd_central = socket(p->ai_family, p->ai_socktype,
+                                     p->ai_protocol)) == -1) {
             perror("talker: socket");
             continue;
         }
@@ -114,22 +114,27 @@ void receive() {
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    int recvlen = 0;
-    recvfrom(sockfd, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    recvfrom(sockfd, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    int length = 0;
+    recv(sockfd, &length, sizeof(int), 0);
+    char *src_msg = (char *) malloc(length + 1);
+    memset(src_msg, 0, length + 1);
+    recv(sockfd, src_msg, length, 0);
+    src = src_msg;
+    free(src_msg);
 
-    memset(&queriedUsernames, 0, sizeof(queriedUsernames));
-    memcpy(&queriedUsernames, recv_buf, recvlen);
-
-    src = queriedUsernames[0];
-    dest = queriedUsernames[1];
-    graph.src = src;
-    graph.dest = dest;
+    length = 0;
+    recv(sockfd, &length, sizeof(int), 0);
+    char *dest_msg = (char *) malloc(length + 1);
+    memset(dest_msg, 0, length + 1);
+    recv(sockfd, dest_msg, length, 0);
+    src = dest_msg;
+    free(dest_msg);
 
     cout << "The ServerT received a request from Central to get the topology." << endl;
+    cout << "src=" << src << ", dest=" << dest << endl;
 }
 
-int getOriginalIndex(const string& username) {
+int getOriginalIndex(const string &username) {
     int originalIndex;
     map<string, int>::iterator it = originalIndexMap.find(username);
     if (it != originalIndexMap.end()) {
@@ -161,7 +166,7 @@ void parseEdgeList() {
 map<string, User> userMap;
 set<string> accessibleNameSet;
 
-User* getUser(const string& username) {
+User *getUser(const string &username) {
     User *u = NULL;
     map<string, User>::iterator it = userMap.find(username);
     if (it != userMap.end()) {
@@ -169,7 +174,6 @@ User* getUser(const string& username) {
     } else {
         int id = userMap.size();
         User newUser;
-        newUser.username = username;
         newUser.id = id;
         newUser.score = -1;
         newUser.distance = DBL_MAX;
@@ -186,19 +190,19 @@ bool isAccessible(string username) {
 
 void generateGraph() {
     vector<string> q;
-    User* srcUser = getUser(src);
+    User *srcUser = getUser(src);
     srcUser->distance = 0;
 
     // find all usernames that accessible by src
     q.push_back(src);
-    while(!q.empty()) {
+    while (!q.empty()) {
         string temp = q.back();
         q.pop_back();
         int i = getOriginalIndex(temp);
         for (int j = 0; j < allNameList.size(); j++) {
             string usernameJ = allNameList.at(j);
             if (allEdges[i][j] == 1 && !isAccessible(usernameJ)) {
-                User* u = getUser(usernameJ);
+                User *u = getUser(usernameJ);
                 q.push_back(usernameJ);
             }
         }
@@ -235,8 +239,8 @@ void generateGraph() {
 
 void sendBack() {
     int length = sizeof(graph);
-    sendto(sockfd, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
-    sendto(sockfd, &graph, sizeof(graph), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, &graph, sizeof(graph), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     cout << "The ServerT finished sending the topology to Central." << endl;
 }
 
