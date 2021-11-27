@@ -22,7 +22,8 @@ struct addrinfo* central_serverinfo;
 
 string nameList[MAX_USER_NUM];
 int scoreList[MAX_USER_NUM];
-string path;
+string path_A;
+string path_B;
 double compatibilityScore;
 
 /**
@@ -247,24 +248,31 @@ void generateShortestPath() {
     string username = nameList[u.id];
 
     while (username != src) {
-        path = " --- " + username + path;
+        path_A = " --- " + username + path_A;
+        path_B = path_B + username + " --- ";
         u = graph.userList[u.preId];
         username = nameList[u.id];
     }
-    path = src + path;
+    path_A = src + path_A;
+    path_B = path_B + src;
     compatibilityScore = graph.userList[graph.destId].distance;
 }
 
 void sendBack() {
     if (IS_DEBUG) {
-        cout << path << endl;
+        cout << path_A << endl;
+        cout << path_B << endl;
         printf("score=%.2f\n", compatibilityScore);
     }
 
     // send path
-    int path_len = path.length();
-    sendto(sockfd_central, &path_len, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
-    sendto(sockfd_central, path.c_str(), path.length(), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    int path_A_len = path_A.length();
+    sendto(sockfd_central, &path_A_len, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, path_A.c_str(), path_A.length(), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+
+    int path_B_len = path_B.length();
+    sendto(sockfd_central, &path_B_len, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, path_B.c_str(), path_B.length(), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
 
     // send score
     sendto(sockfd_central, &compatibilityScore, sizeof(double), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
@@ -284,7 +292,8 @@ int main() {
         memset(&nameList, 0 ,sizeof nameList);
         memset(&scoreList, 0 ,sizeof scoreList);
         graph = Graph();
-        path = "";
+        path_A = "";
+        path_B = "";
         compatibilityScore = 0;
     }
     return 0;

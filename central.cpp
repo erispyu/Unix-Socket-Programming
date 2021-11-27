@@ -32,7 +32,8 @@ string dest = "";
 Graph graph;
 string nameList[MAX_USER_NUM];
 int scoreList[MAX_USER_NUM];
-string path;
+string path_A;
+string path_B;
 double compatibilityScore;
 
 char recv_buf[BUF_SIZE];
@@ -277,20 +278,33 @@ void contactServerP() {
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
 
-    // receive path
-    int path_len = 0;
+    // receive path_A
+    int path_A_len = 0;
     recvfrom(sockfd_udp_central, &path_len, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
     if (IS_DEBUG) {
-        cout << path_len << endl;
+        cout << path_A_len << endl;
     }
-    char *message = (char *) malloc(path_len + 1);
-    memset(message, 0, path_len + 1);
-    recvfrom(sockfd_udp_central, message, path_len, FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    path = message;
+    char *path_A_message = (char *) malloc(path_A_len + 1);
+    memset(path_A_message, 0, path_A_len + 1);
+    recvfrom(sockfd_udp_central, path_A_message, path_A_len, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    path_A = path_A_message;
+    free(path_A_message);
+
+    // receive path_B
+    int path_B_len = 0;
+    recvfrom(sockfd_udp_central, &path_B_len, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    if (IS_DEBUG) {
+        cout << path_B_len << endl;
+    }
+    char *message = (char *) malloc(path_B_len + 1);
+    memset(message, 0, path_B_len + 1);
+    recvfrom(sockfd_udp_central, message, path_B_len, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    path_B = message;
     free(message);
 
     if (IS_DEBUG) {
-        cout << path << endl;
+        cout << path_A << endl;
+        cout << path_B << endl;
     }
 
     // receive score
@@ -383,7 +397,7 @@ void del_from_pfds(struct pollfd pfds[], int i, int *fd_count) {
     (*fd_count)--;
 }
 
-void replyClient(int sockfd, int newfd, char client) {
+void replyClient(int sockfd, int newfd, char client, string path) {
     // send src
     int srclen = src.length();
     send(newfd, &srclen, sizeof(int), 0);
@@ -501,15 +515,16 @@ int main() {
         contactServerS();
         contactServerP();
 
-        replyClient(sockfd_A, newfd_A, 'A');
-        replyClient(sockfd_B, newfd_B, 'B');
+        replyClient(sockfd_A, newfd_A, 'A', path_A);
+        replyClient(sockfd_B, newfd_B, 'B', path_B);
 
         src = "";
         dest = "";
         graph = Graph();
         memset(&nameList, 0 ,sizeof nameList);
         memset(&scoreList, 0 ,sizeof scoreList);
-        path = "";
+        path_A = "";
+        path_B = "";
         compatibilityScore = -1;
 
     } // END for(;;)--and you thought it would never end!
