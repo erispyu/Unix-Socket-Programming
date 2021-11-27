@@ -290,10 +290,9 @@ void contactServerP() {
         cout << path << endl;
     }
 
-    // receive score
-    compatibilityScore = 0;
-    recvfrom(sockfd_udp_central, &compatibilityScore, sizeof(double), FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    cout << compatibilityScore << endl;
+//    // receive score
+//    compatibilityScore = 0;
+//    recvfrom(sockfd_udp_central, &compatibilityScore, sizeof(double), FLAG, (struct sockaddr *) &their_addr, &addr_len);
 
     if (IS_DEBUG) {
         cout << compatibilityScore << endl;

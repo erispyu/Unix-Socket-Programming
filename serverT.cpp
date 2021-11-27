@@ -126,6 +126,11 @@ void receive() {
     dest = dest_msg;
     free(dest_msg);
 
+    if (IS_DEBUG) {
+        cout << "src = " << src << endl;
+        cout << "dest = " << dest << endl;
+    }
+
     cout << "The ServerT received a request from Central to get the topology." << endl;
 }
 
