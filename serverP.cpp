@@ -120,6 +120,23 @@ void receive() {
     recvfrom(sockfd, &recv_buf, graphlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memcpy(&graph, recv_buf, sizeof(graph));
 
+    if (IS_DEBUG) {
+        cout << "graph.size = " << graph.size << endl;
+        cout << "destId = " << graph.destId << endl;
+        cout << "Adj Matrix:" << endl;
+        for (int i = 0; i < graph.size; i++) {
+            for (int j = 0; j < graph.size; j++) {
+                cout << graph.distance[i][j] << "\t";
+            }
+            cout << endl;
+        }
+        cout << "UserList:" << endl;
+        for (int i = 0; i < graph.size; i++) {
+            User u = graph.userList[i];
+            cout << "id=" << u.id << ", pre=" << u.preId << ", distance=" << u.distance << endl;
+        }
+    }
+
     // receive scoreList
     int recvlen = 0;
     recvfrom(sockfd, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
@@ -141,6 +158,12 @@ void receive() {
         free(message);
         // fill in
         nameList[i] = username;
+    }
+
+    if (IS_DEBUG) {
+        for (int i = 0; i < graphSize; i++) {
+            cout << i << "\t" << nameList[i] << "\t" << scoreList[i] << endl;
+        }
     }
 
     cout << "The ServerP received the topology and score information." << endl;

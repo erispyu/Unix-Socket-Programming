@@ -165,20 +165,22 @@ void contactServerT() {
     recvfrom(sockfd_udp_central, &recv_buf, graphlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memcpy(&graph, recv_buf, sizeof(graph));
 
-    // cout << "graph.size = " << graph.size << endl;
-    // cout << "destId = " << graph.destId << endl;
-    // cout << "Adj Matrix:" << endl;
-    // for (int i = 0; i < graph.size; i++) {
-    //     for (int j = 0; j < graph.size; j++) {
-    //         cout << graph.distance[i][j] << "\t";
-    //     }
-    //     cout << endl;
-    // }
-    // cout << "UserList:" << endl;
-    // for (int i = 0; i < graph.size; i++) {
-    //     User u = graph.userList[i];
-    //     cout << "id=" << u.id << ", pre=" << u.preId << ", score=" << u.score << ", distance=" << u.distance << endl;
-    // }
+    if (IS_DEBUG) {
+        cout << "graph.size = " << graph.size << endl;
+        cout << "destId = " << graph.destId << endl;
+        cout << "Adj Matrix:" << endl;
+        for (int i = 0; i < graph.size; i++) {
+            for (int j = 0; j < graph.size; j++) {
+                cout << graph.distance[i][j] << "\t";
+            }
+            cout << endl;
+        }
+        cout << "UserList:" << endl;
+        for (int i = 0; i < graph.size; i++) {
+            User u = graph.userList[i];
+            cout << "id=" << u.id << ", pre=" << u.preId << ", distance=" << u.distance << endl;
+        }
+    }
 
     int graphSize = graph.size;
     for (int i = 0; i < graphSize; i++) {
@@ -194,6 +196,13 @@ void contactServerT() {
         // fill in
         nameList[i] = username;
     }
+
+    if (IS_DEBUG) {
+        for (int i = 0; i < graphSize; i++) {
+            cout << i << "\t" << nameList[i] << "\t" << endl;
+        }
+    }
+
     cout << "The Central server received information from Backend-Server T using UDP over port " << UDP_PORT_T
          << "." << endl;
 }
@@ -226,9 +235,11 @@ void contactServerS() {
     recvfrom(sockfd_udp_central, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memcpy(&scoreList, recv_buf, recvlen);
 
-//    for (int i = 0; i < graphSize; i++) {
-//        cout << nameList[i] << ", " << scoreList[i] << endl;
-//    }
+    if (IS_DEBUG) {
+        for (int i = 0; i < graphSize; i++) {
+            cout << i << "\t" << nameList[i] << "\t" << scoreList[i] << endl;
+        }
+    }
     cout << "The Central server received information from Backend-Server S using UDP over port " << UDP_PORT_S
          << "." << endl;
 }
@@ -274,12 +285,19 @@ void contactServerP() {
     recvfrom(sockfd_udp_central, &path_msg, path_len, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     path = path_msg;
     free(path_msg);
-    cout << path << endl;
+
+    if (IS_DEBUG) {
+        cout << path << endl;
+    }
 
     // receive score
     compatibilityScore = 0;
     recvfrom(sockfd_udp_central, &compatibilityScore, sizeof(double), FLAG, (struct sockaddr *) &their_addr, &addr_len);
     cout << compatibilityScore << endl;
+
+    if (IS_DEBUG) {
+        cout << compatibilityScore << endl;
+    }
 
     cout << "The Central server received information from Backend-Server P using UDP over port " << UDP_PORT_P
          << "." << endl;

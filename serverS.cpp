@@ -125,6 +125,12 @@ void receive() {
         nameList[i] = username;
     }
 
+    if (IS_DEBUG) {
+        for (int i = 0; i < graphSize; i++) {
+            cout << i << "\t" << nameList[i] << "\t" << endl;
+        }
+    }
+
     cout << "The ServerS received a request from Central to get the scores." << endl;
 }
 
