@@ -465,7 +465,7 @@ int main() {
                         free(message);
 
                         cout << "The Central server received input=\"" << src
-                             << "\" from the client using TCP over port " << portNumber
+                             << "\" from the client using TCP over port " << TCP_PORT_A
                              << "." << endl;
                     }
                 } else if (pfds[i].fd == sockfd_B) {
@@ -486,7 +486,7 @@ int main() {
                         dest = message;
                         free(message);;
                         cout << "The Central server received input=\"" << dest
-                             << "\" from the client using TCP over port " << portNumber
+                             << "\" from the client using TCP over port " << TCP_PORT_B
                              << "." << endl;
                     }
                 }// END handle data from client
