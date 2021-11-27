@@ -22,7 +22,7 @@
 
 #define MAX_USER_NUM 20
 
-#define IS_DEBUG true
+#define IS_DEBUG false
 
 struct User {
     int id;
