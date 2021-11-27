@@ -11,7 +11,9 @@
 
 using namespace std;
 
-User userList[MAX_USER_NUM];
+int graphSize;
+string nameList[MAX_USER_NUM];
+int scoreList[MAX_USER_NUM];
 map<string, int> scoreMap;
 
 int sockfd;
@@ -103,15 +105,25 @@ void bootUp() {
 }
 
 void receive() {
-    memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    int recvlen = 0;
-    recvfrom(sockfd, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    recvfrom(sockfd, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
 
-    memset(&userList, 0, sizeof(userList));
-    memcpy(&userList, recv_buf, recvlen);
+    graphSize = 0;
+    recvfrom(sockfd, &graphSize, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+
+    for (int i = 0; i < graphSize; i++) {
+        // receive
+        string username;
+        int length = 0;
+        recvfrom(sockfd, &length, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+        char* message = (char*)malloc(length+1);
+        memset(message, 0, length+1);
+        recvfrom(sockfd, message, length, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+        username = message;
+        free(message);
+        // fill in
+        nameList[i] = username;
+    }
 
     cout << "The ServerS received a request from Central to get the scores." << endl;
 }
@@ -134,18 +146,18 @@ void parseFile() {
 
 void setScores() {
     for (int i = 0; i < MAX_USER_NUM; i++) {
-        User *u = &userList[i];
-        if (u->username == "") {
+        string name = nameList[i];
+        if (name == "") {
             return;
         }
-        u->score = scoreMap.find(u->username)->second;
+        scoreList[i] = scoreMap.find(name)->second;
     }
 }
 
 void sendBack() {
-    int length = sizeof(userList);
+    int length = sizeof scoreList;
     sendto(sockfd, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
-    sendto(sockfd, &userList, sizeof(userList), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd, &scoreList, length, 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     cout << "The ServerS finished sending the scores to Central." << endl;
 }
 

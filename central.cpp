@@ -31,6 +31,7 @@ string src = "";
 string dest = "";
 Graph graph;
 string nameList[MAX_USER_NUM];
+int scoreList[MAX_USER_NUM];
 PathInfo pathInfo;
 
 char recv_buf[BUF_SIZE];
@@ -204,9 +205,15 @@ void contactServerS() {
     sockaddr *server_S_addr = backend_serverinfo.at(1)->ai_addr;
     socklen_t server_S_addrlen = backend_serverinfo.at(1)->ai_addrlen;
 
-    int length = sizeof(graph.userList);
-    sendto(sockfd_udp_central, &length, sizeof(int), 0, server_S_addr, server_S_addrlen);
-    sendto(sockfd_udp_central, &graph.userList, sizeof(graph.userList), 0, server_S_addr, server_S_addrlen);
+    int graphSize = graph.size;
+    sendto(sockfd_udp_central, &graphSize, sizeof(int), 0, server_S_addr, server_S_addrlen);
+
+    for (int i = 0; i < graphSize; i++) {
+        string username = nameList[i];
+        int length = username.length();
+        sendto(sockfd_udp_central, &length, sizeof(int), 0, server_S_addr, server_S_addrlen);
+        sendto(sockfd_udp_central, username.c_str(), username.length(), 0, server_S_addr, server_S_addrlen);
+    }
     cout << "The Central server sent a request to Backend-Server S." << endl;
 
     memset(recv_buf, 0, BUF_SIZE);
@@ -214,10 +221,13 @@ void contactServerS() {
     socklen_t addr_len = sizeof their_addr;
     int recvlen = 0;
     recvfrom(sockfd_udp_central, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    memset(&scoreList, 0, recvlen);
     recvfrom(sockfd_udp_central, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    memcpy(&scoreList, recv_buf, recvlen);
 
-    memset(&graph.userList, 0, sizeof(graph.userList));
-    memcpy(&graph.userList, recv_buf, recvlen);
+    for (int i = 0; i < graphSize; i++) {
+        cout << nameList[i] << ", " << scoreList[i] << endl;
+    }
     cout << "The Central server received information from Backend-Server S using UDP over port " << UDP_PORT_S
          << "." << endl;
 }
