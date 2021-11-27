@@ -503,6 +503,11 @@ int main() {
 
         src = "";
         dest = "";
+        memset(&graph, 0 ,sizeof graph);
+        memset(&nameList, 0 ,sizeof nameList);
+        memset(&scoreList, 0 ,sizeof scoreList);
+        path = "";
+        compatibilityScore = -1;
 
     } // END for(;;)--and you thought it would never end!
 }
