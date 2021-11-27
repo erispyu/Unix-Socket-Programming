@@ -263,6 +263,23 @@ int main() {
         generateGraph();
         sendBack();
 
+        if (IS_DEBUG) {
+            cout << "graph.size = " << graph.size << endl;
+            cout << "destId = " << graph.destId << endl;
+            cout << "Adj Matrix:" << endl;
+            for (int i = 0; i < graph.size; i++) {
+                for (int j = 0; j < graph.size; j++) {
+                    cout << graph.distance[i][j] << "\t";
+                }
+                cout << endl;
+            }
+            cout << "UserList:" << endl;
+            for (int i = 0; i < graph.size; i++) {
+                User u = graph.userList[i];
+                cout << "id=" << u.id << ", pre=" << u.preId << ", distance=" << u.distance << endl;
+            }
+        }
+
         memset(&graph, 0 ,sizeof graph);
         memset(&nameList, 0 ,sizeof nameList);
         src = "";

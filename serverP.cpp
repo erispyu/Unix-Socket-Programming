@@ -284,7 +284,7 @@ int main() {
         memset(&nameList, 0 ,sizeof nameList);
         memset(&scoreList, 0 ,sizeof scoreList);
         memset(&graph, 0 ,sizeof graph);
-        path = "";
+//        path = "";
         compatibilityScore = 0;
     }
     return 0;
