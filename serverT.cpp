@@ -14,12 +14,14 @@ using namespace std;
 
 string src;
 string dest;
+Graph graph;
+map<string, User> userMap;
+set<string> accessibleNameSet;
+string nameList[MAX_USER_NUM];
 
 map<string, int> originalIndexMap;
 vector<string> allNameList;
 int allEdges[MAX_USER_NUM][MAX_USER_NUM];
-
-Graph graph;
 
 int sockfd;
 int sockfd_central;
@@ -163,10 +165,6 @@ void parseEdgeList() {
     fileIn.close();
 }
 
-map<string, User> userMap;
-set<string> accessibleNameSet;
-string nameList[MAX_USER_NUM];
-
 User *getUser(const string &username) {
     User *u = NULL;
     map<string, User>::iterator it = userMap.find(username);
@@ -280,10 +278,12 @@ int main() {
             }
         }
 
-        memset(&graph, 0 ,sizeof graph);
+        graph = Graph();
         memset(&nameList, 0 ,sizeof nameList);
         src = "";
         dest = "";
+        userMap = map<string, User>();
+        accessibleNameSet = set<string>();
     }
     return 0;
 }

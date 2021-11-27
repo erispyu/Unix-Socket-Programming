@@ -505,7 +505,7 @@ int main() {
 
         src = "";
         dest = "";
-        memset(&graph, 0 ,sizeof graph);
+        graph = Graph();
         memset(&nameList, 0 ,sizeof nameList);
         memset(&scoreList, 0 ,sizeof scoreList);
         path = "";
