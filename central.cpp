@@ -160,15 +160,16 @@ void contactServerT() {
     int graphlen = 0;
     recvfrom(sockfd_udp_central, &graphlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memset(&graph, 0, graphlen);
-    cout << "graphlen=" << graphlen << endl;
     recvfrom(sockfd_udp_central, &recv_buf, graphlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memcpy(&graph, recv_buf, sizeof(graph));
-    cout << "graph.size=" << graph.size << endl;
 
     memset(recv_buf, 0, BUF_SIZE);
     recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memset(&nameList, 0, sizeof(nameList));
     memcpy(&nameList, recv_buf, sizeof(nameList));
+    for (int i = 0; i < graph.size; i++) {
+        cout << nameList[i] << endl;
+    }
     cout << "The Central server received information from Backend-Server T using UDP over port " << UDP_PORT_T
          << "." << endl;
 }

@@ -17,7 +17,7 @@
 #define TCP_PORT_A "25900"
 #define TCP_PORT_B "26900"
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 4096
 #define FLAG 0
 
 #define MAX_USER_NUM 20
