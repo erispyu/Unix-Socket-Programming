@@ -156,11 +156,15 @@ void contactServerT() {
     memset(recv_buf, 0, BUF_SIZE);
     struct sockaddr_storage their_addr;
     socklen_t addr_len = sizeof their_addr;
-    int recvlen = 0;
-    recvfrom(sockfd_udp_central, &recvlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    recvfrom(sockfd_udp_central, &recv_buf, recvlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     memset(&graph, 0, sizeof(graph));
-    memcpy(&graph, recv_buf, recvlen);
+    memcpy(&graph, recv_buf, sizeof(graph));
+    cout << "graph.size=" << graph.size << endl;
+
+    memset(recv_buf, 0, BUF_SIZE);
+    recvfrom(sockfd_udp_central, &recv_buf, BUF_SIZE, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    memset(&nameList, 0, sizeof(nameList));
+    memcpy(&nameList, recv_buf, sizeof(nameList));
     cout << "The Central server received information from Backend-Server T using UDP over port " << UDP_PORT_T
          << "." << endl;
 }

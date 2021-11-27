@@ -23,7 +23,6 @@
 #define MAX_USER_NUM 20
 
 struct User {
-    std::string username;
     int id;
     int score;
     double distance;
@@ -31,8 +30,6 @@ struct User {
 };
 
 struct Graph {
-    std::string src;
-    std::string dest;
     int destId;
     int size;
     User userList[MAX_USER_NUM];

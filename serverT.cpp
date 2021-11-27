@@ -127,7 +127,6 @@ void receive() {
     free(dest_msg);
 
     cout << "The ServerT received a request from Central to get the topology." << endl;
-    cout << "src=" << src << ", dest=" << dest << endl;
 }
 
 int getOriginalIndex(const string &username) {
@@ -161,6 +160,7 @@ void parseEdgeList() {
 
 map<string, User> userMap;
 set<string> accessibleNameSet;
+string nameList[MAX_USER_NUM];
 
 User *getUser(const string &username) {
     User *u = NULL;
@@ -170,6 +170,7 @@ User *getUser(const string &username) {
     } else {
         int id = userMap.size();
         User newUser;
+        nameList[id] = username;
         newUser.id = id;
         newUser.score = -1;
         newUser.distance = DBL_MAX;
@@ -229,14 +230,13 @@ void generateGraph() {
         graph.userList[u.id] = u;
     }
 
-    // fill in graph.destId;
+    // fill in graph.destId
     graph.destId = getUser(dest)->id;
 }
 
 void sendBack() {
-    int length = sizeof(graph);
-    sendto(sockfd_central, &length, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     sendto(sockfd_central, &graph, sizeof(graph), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, &nameList, sizeof(nameList), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
     cout << "The ServerT finished sending the topology to Central." << endl;
 }
 
