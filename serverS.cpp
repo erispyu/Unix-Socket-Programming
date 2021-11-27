@@ -169,14 +169,13 @@ void sendBack() {
 
 int main() {
     bootUp();
+    parseFile();
     while (true) {
         receive();
-        parseFile();
         setScores();
         sendBack();
         memset(&nameList, 0 ,sizeof nameList);
         memset(&scoreList, 0 ,sizeof scoreList);
-        memset(&scoreMap, 0, sizeof scoreMap);
         graphSize = 0;
     }
     return 0;
