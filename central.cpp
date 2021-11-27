@@ -280,7 +280,7 @@ void contactServerP() {
 
     // receive path_A
     int path_A_len = 0;
-    recvfrom(sockfd_udp_central, &path_len, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    recvfrom(sockfd_udp_central, &path_A_len, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
     if (IS_DEBUG) {
         cout << path_A_len << endl;
     }
