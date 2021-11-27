@@ -110,10 +110,6 @@ void bootUp() {
 }
 
 void receive() {
-    string queriedUsernames[2];
-    memset(recv_buf, 0, BUF_SIZE);
-    struct sockaddr_storage their_addr;
-    socklen_t addr_len = sizeof their_addr;
     int length = 0;
     recv(sockfd, &length, sizeof(int), 0);
     char *src_msg = (char *) malloc(length + 1);
@@ -127,7 +123,7 @@ void receive() {
     char *dest_msg = (char *) malloc(length + 1);
     memset(dest_msg, 0, length + 1);
     recv(sockfd, dest_msg, length, 0);
-    src = dest_msg;
+    dest = dest_msg;
     free(dest_msg);
 
     cout << "The ServerT received a request from Central to get the topology." << endl;
