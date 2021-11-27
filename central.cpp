@@ -267,17 +267,19 @@ void contactServerP() {
     socklen_t addr_len = sizeof their_addr;
 
     // receive path
-    int pathlen = 0;
-    recvfrom(sockfd_udp_central, &pathlen, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    char *message = (char *) malloc(pathlen + 1);
-    memset(message, 0, pathlen + 1);
-    recvfrom(sockfd_udp_central, &message, pathlen, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    int path_len = 0;
+    recvfrom(sockfd_udp_central, &path_len, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    char *message = (char *) malloc(path_len + 1);
+    memset(message, 0, path_len + 1);
+    recvfrom(sockfd_udp_central, &message, path_len, FLAG, (struct sockaddr *) &their_addr, &addr_len);
     path = message;
     free(message);
+    cout << path << endl;
 
     // receive score
     compatibilityScore = 0;
     recvfrom(sockfd_udp_central, &compatibilityScore, sizeof(double), FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    cout << compatibilityScore << endl;
 
     cout << "The Central server received information from Backend-Server P using UDP over port " << UDP_PORT_P
          << "." << endl;
