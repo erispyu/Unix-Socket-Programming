@@ -278,18 +278,19 @@ void contactServerP() {
     socklen_t addr_len = sizeof their_addr;
 
     // receive path
-    string receivedPath;
     int path_len = 0;
     recvfrom(sockfd_udp_central, &path_len, sizeof(int), FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    char *path_msg = (char *) malloc(path_len + 1);
-    memset(path_msg, 0, path_len + 1);
-    recvfrom(sockfd_udp_central, &path_msg, path_len, FLAG, (struct sockaddr *) &their_addr, &addr_len);
-    receivedPath = path_msg;
-    free(path_msg);
+    if (IS_DEBUG) {
+        cout << path_len << endl;
+    }
+    char *message = (char *) malloc(path_len + 1);
+    memset(message, 0, path_len + 1);
+    recvfrom(sockfd_udp_central, message, path_len, FLAG, (struct sockaddr *) &their_addr, &addr_len);
+    path = message;
+    free(message);
 
     if (IS_DEBUG) {
         cout << path << endl;
-        cout << receivedPath << endl;
     }
 
     // receive score
