@@ -31,6 +31,7 @@ string src = "";
 string dest = "";
 Graph graph;
 string nameList[MAX_USER_NUM];
+PathInfo pathInfo;
 
 char recv_buf[BUF_SIZE];
 
@@ -376,10 +377,10 @@ int main() {
                         unsigned short portNumber = ntohs(((struct sockaddr_in *) &remoteaddr)->sin_port);
 
                         int length = 0;
-                        read(newfd_A, &length, sizeof(int));
+                        read(newfd_B, &length, sizeof(int));
                         char* message = (char*)malloc(length+1);
                         memset(message, 0, length+1);
-                        read(newfd_A,message,length);
+                        read(newfd_B,message,length);
                         dest = message;
                         free(message);;
                         cout << "The Central server received input=\"" << dest << "\" from the client using TCP over port " << portNumber
