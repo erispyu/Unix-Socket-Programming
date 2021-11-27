@@ -262,9 +262,9 @@ void sendBack() {
     }
 
     // send path
-//    int pathlen = path.length();
-//    sendto(sockfd_central, &pathlen, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
-//    sendto(sockfd_central, path.c_str(), path.length(), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    int pathlen = path.length();
+    sendto(sockfd_central, &pathlen, sizeof(int), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
+    sendto(sockfd_central, path.c_str(), pathlen, 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
 
     // send score
     sendto(sockfd_central, &compatibilityScore, sizeof(double), 0, central_serverinfo->ai_addr, central_serverinfo->ai_addrlen);
