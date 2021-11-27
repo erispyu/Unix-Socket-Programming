@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     int length = username.length();
     send(sockfd, &length, sizeof(int), 0);
-    send(sockfd, username.c_str(), sizeof username.length(), 0);
+    send(sockfd, username.c_str(), username.length(), 0);
     cout << "The client sent " << username << " to the Central server." << endl;
 
     int recvlen = 0;
