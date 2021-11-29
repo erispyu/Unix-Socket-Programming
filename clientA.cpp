@@ -18,6 +18,9 @@
 
 using namespace std;
 
+/**
+ * Reference: https://beej.us/guide/bgnet/examples/client.c
+ */
 int main(int argc, char *argv[]) {
     const string username = argv[1];
     int sockfd;
